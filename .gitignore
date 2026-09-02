@@ -17,3 +17,6 @@ dist/
 .DS_Store
 Thumbs.db
 *.log
+
+# Local engineering/audit context — never commit
+.project_local/
