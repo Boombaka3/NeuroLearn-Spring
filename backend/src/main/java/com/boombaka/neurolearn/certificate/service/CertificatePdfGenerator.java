@@ -80,7 +80,7 @@ public class CertificatePdfGenerator {
             content.setNonStrokingColor(71 / 255f, 85 / 255f, 105 / 255f);
             drawCenteredText(content, regular, 16, "This certificate is awarded to", height - 213, width);
 
-            float nameSize = fittingFontSize(bold, displayName, 34f, 20f);
+            float nameSize = fittingFontSize(bold, displayName, 34f, 10f);
             content.setNonStrokingColor(15 / 255f, 50 / 255f, 75 / 255f);
             drawCenteredText(content, bold, nameSize, displayName, height - 267, width);
 
@@ -92,7 +92,7 @@ public class CertificatePdfGenerator {
 
             content.setNonStrokingColor(71 / 255f, 85 / 255f, 105 / 255f);
             drawCenteredText(content, regular, 15,
-                    "for completing the Brain x AI 101 course", height - 326, width);
+                    "for completing the Brain \u00d7 AI 101 course", height - 326, width);
             drawCenteredText(content, italic, 13,
                     "Pre-assessment, server-scored quiz, and post-assessment verified",
                     height - 354, width);

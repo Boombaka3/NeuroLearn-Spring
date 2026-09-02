@@ -4,7 +4,7 @@ spring:
   datasource:
     url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:neurolearn}
     username: ${POSTGRES_USER:neurolearn}
-    password: ${POSTGRES_PASSWORD:}
+    password: ${POSTGRES_PASSWORD}
   jpa:
     hibernate:
       ddl-auto: validate

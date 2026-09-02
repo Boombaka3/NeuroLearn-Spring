@@ -48,4 +48,16 @@ class CertificateRequestValidationTest {
                 .extracting(violation -> violation.getPropertyPath().toString())
                 .contains("displayName");
     }
+
+    @Test
+    void rejectsNameLongerThanCertificateLayoutSupports() {
+        CertificateRequest request = new CertificateRequest(
+                "LEARNER-401", "W".repeat(65));
+
+        Set<ConstraintViolation<CertificateRequest>> violations = validator.validate(request);
+
+        assertThat(violations)
+                .extracting(violation -> violation.getPropertyPath().toString())
+                .contains("displayName");
+    }
 }

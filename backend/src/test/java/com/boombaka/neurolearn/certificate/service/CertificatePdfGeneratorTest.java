@@ -28,8 +28,21 @@ class CertificatePdfGeneratorTest {
             assertThat(text)
                     .contains("Certificate of Completion")
                     .contains("Ada O'Neil-Smith Jr.")
+                    .contains("Brain \u00d7 AI 101")
                     .contains("Completed September 2, 2026")
                     .contains("Verification code: LEARNER-401");
+        }
+    }
+
+    @Test
+    void generatesReadablePdfForMaximumLengthName() throws IOException {
+        String displayName = "W".repeat(64);
+
+        byte[] pdf = pdfGenerator.generate(
+                displayName, "LEARNER-402", LocalDate.of(2026, 9, 2));
+
+        try (PDDocument document = Loader.loadPDF(pdf)) {
+            assertThat(new PDFTextStripper().getText(document)).contains(displayName);
         }
     }
 }

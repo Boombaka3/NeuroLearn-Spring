@@ -11,7 +11,7 @@ public record CertificateRequest(
                 message = "must contain only letters, numbers, and single hyphens")
         String participantCode,
         @NotBlank
-        @Size(min = 2, max = 80)
+        @Size(min = 2, max = 64)
         @Pattern(regexp = "^[A-Za-z][A-Za-z .'-]*$",
                 message = "must contain only letters, spaces, periods, apostrophes, and hyphens")
         String displayName) {

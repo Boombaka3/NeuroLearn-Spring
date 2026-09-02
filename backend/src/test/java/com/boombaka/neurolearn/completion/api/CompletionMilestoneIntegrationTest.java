@@ -107,6 +107,20 @@ class CompletionMilestoneIntegrationTest {
                 .andExpect(jsonPath("$.fieldErrors.displayName").exists());
     }
 
+    @Test
+    void unknownParticipantCompletionReturnsStableNotFoundError() throws Exception {
+        mockMvc.perform(get("/api/completion/UNKNOWN-001"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.code").value("PARTICIPANT_NOT_FOUND"));
+    }
+
+    @Test
+    void invalidCompletionParticipantCodeReturnsValidationError() throws Exception {
+        mockMvc.perform(get("/api/completion/bad_code"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("VALIDATION_FAILED"));
+    }
+
     private void submitAssessment(String route, String participantCode) throws Exception {
         String body = """
                 {

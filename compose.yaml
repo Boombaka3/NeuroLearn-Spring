@@ -4,7 +4,7 @@ services:
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-neurolearn}
       POSTGRES_USER: ${POSTGRES_USER:-neurolearn}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env or the environment}
     ports:
       - "${POSTGRES_PORT:-5432}:5432"
     volumes:
