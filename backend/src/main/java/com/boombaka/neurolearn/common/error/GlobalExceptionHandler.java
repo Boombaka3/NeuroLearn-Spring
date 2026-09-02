@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.boombaka.neurolearn.assessment.exception.AssessmentAlreadySubmittedException;
 import com.boombaka.neurolearn.assessment.exception.ParticipantNotFoundException;
+import com.boombaka.neurolearn.quiz.exception.InvalidQuizAnswersException;
+import com.boombaka.neurolearn.quiz.exception.QuizAlreadySubmittedException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -52,6 +54,18 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ParticipantNotFoundException.class)
     ResponseEntity<ApiError> handleParticipantNotFound(ParticipantNotFoundException exception) {
         return error(HttpStatus.NOT_FOUND, "PARTICIPANT_NOT_FOUND",
+                exception.getMessage(), Map.of());
+    }
+
+    @ExceptionHandler(QuizAlreadySubmittedException.class)
+    ResponseEntity<ApiError> handleDuplicateQuiz(QuizAlreadySubmittedException exception) {
+        return error(HttpStatus.CONFLICT, "QUIZ_ALREADY_SUBMITTED",
+                exception.getMessage(), Map.of());
+    }
+
+    @ExceptionHandler(InvalidQuizAnswersException.class)
+    ResponseEntity<ApiError> handleInvalidQuizAnswers(InvalidQuizAnswersException exception) {
+        return error(HttpStatus.BAD_REQUEST, "INVALID_QUIZ_ANSWERS",
                 exception.getMessage(), Map.of());
     }
 

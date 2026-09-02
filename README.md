@@ -2,7 +2,7 @@
 
 NeuroLearn is an interactive AI learning platform. Its first course is **Brain × AI 101**.
 
-This repository is being built as a full-stack application with a React/TypeScript frontend and a Java/Spring Boot REST API backed by PostgreSQL. The backend currently includes the foundation and the assessment workflow.
+This repository is being built as a full-stack application with a React/TypeScript frontend and a Java/Spring Boot REST API backed by PostgreSQL. The backend currently includes the foundation, assessment workflow, and server-scored quiz workflow.
 
 ## Current foundation
 
@@ -15,6 +15,7 @@ This repository is being built as a full-stack application with a React/TypeScri
 - Docker Compose configuration for local PostgreSQL
 - Anonymous pre-course and post-course assessment persistence
 - Stable validation and conflict error responses
+- Server-controlled quiz scoring with normalized answer persistence
 
 ## Assessment API
 
@@ -40,6 +41,29 @@ Submission body:
 ```
 
 Each answer is required and must be an integer from 1 through 5.
+
+## Quiz API
+
+The quiz accepts exactly one answer for each question ID `q1` through `q5`. Options are `A` through `D`; the trusted answer key and score calculation remain on the backend. A participant must already exist and may submit the quiz once.
+
+```http
+POST /api/quiz/submissions
+```
+
+```json
+{
+  "participantCode": "LEARNER-001",
+  "answers": {
+    "q1": "A",
+    "q2": "D",
+    "q3": "B",
+    "q4": "C",
+    "q5": "A"
+  }
+}
+```
+
+The response contains the server-calculated `score`, `total`, and `percentage`; client-supplied score fields are rejected.
 
 ## Run locally
 
