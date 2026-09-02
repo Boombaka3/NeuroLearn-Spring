@@ -1,0 +1,2 @@
+-- Establishes the initial Flyway schema history for the NeuroLearn application.
+-- Domain tables are introduced by the milestones that own them.
