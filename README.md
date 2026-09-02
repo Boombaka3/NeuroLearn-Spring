@@ -2,7 +2,7 @@
 
 NeuroLearn is an interactive AI learning platform. Its first course is **Brain × AI 101**.
 
-This repository is being built as a full-stack application with a React/TypeScript frontend and a Java/Spring Boot REST API backed by PostgreSQL. The current milestone establishes the backend foundation.
+This repository is being built as a full-stack application with a React/TypeScript frontend and a Java/Spring Boot REST API backed by PostgreSQL. The backend currently includes the foundation and the assessment workflow.
 
 ## Current foundation
 
@@ -13,6 +13,33 @@ This repository is being built as a full-stack application with a React/TypeScri
 - `GET /api/health`
 - JUnit 5 and MockMvc tests
 - Docker Compose configuration for local PostgreSQL
+- Anonymous pre-course and post-course assessment persistence
+- Stable validation and conflict error responses
+
+## Assessment API
+
+Participant codes are non-personal identifiers containing 6–32 letters, numbers, or single hyphens. A participant may submit one PRE and one POST assessment. A PRE submission creates the participant; POST and lookup require that participant to exist.
+
+```http
+POST /api/assessments/pre
+POST /api/assessments/post
+GET  /api/assessments/participants/{participantCode}
+```
+
+Submission body:
+
+```json
+{
+  "participantCode": "LEARNER-001",
+  "answers": {
+    "aiFamiliarity": 3,
+    "neuronUnderstanding": 2,
+    "aiUnderstanding": 3
+  }
+}
+```
+
+Each answer is required and must be an integer from 1 through 5.
 
 ## Run locally
 
