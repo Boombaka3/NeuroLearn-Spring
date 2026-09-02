@@ -2,7 +2,7 @@
 
 NeuroLearn is an interactive AI learning platform. Its first course is **Brain × AI 101**.
 
-This repository is being built as a full-stack application with a React/TypeScript frontend and a Java/Spring Boot REST API backed by PostgreSQL. The backend currently includes the foundation, assessment workflow, and server-scored quiz workflow.
+This repository is being built as a full-stack application with a planned React/TypeScript frontend and a Java/Spring Boot REST API backed by PostgreSQL. The repository currently contains the backend foundation, assessment workflow, server-scored quiz, completion verification, certificate generation, and administrative CSV export.
 
 ## Current foundation
 
@@ -16,6 +16,8 @@ This repository is being built as a full-stack application with a React/TypeScri
 - Anonymous pre-course and post-course assessment persistence
 - Stable validation and conflict error responses
 - Server-controlled quiz scoring with normalized answer persistence
+- Server-verified completion and downloadable PDF certificates
+- Minimal completion CSV export for portfolio administration
 
 ## Assessment API
 
@@ -65,6 +67,36 @@ POST /api/quiz/submissions
 
 The response contains the server-calculated `score`, `total`, and `percentage`; client-supplied score fields are rejected.
 
+## Completion and certificates
+
+A participant is complete only after the server finds all three persisted records: one PRE assessment, one quiz submission, and one POST assessment. No attendance or score threshold is invented.
+
+```http
+GET  /api/completion/{participantCode}
+POST /api/certificates
+```
+
+Certificate request:
+
+```json
+{
+  "participantCode": "LEARNER-001",
+  "displayName": "Ada Lovelace"
+}
+```
+
+The display name is validated, drawn into the PDF only for that response, and is not stored. Certificate generation returns `409 COURSE_NOT_COMPLETED` until all three requirements exist.
+
+## Administrative CSV export
+
+```http
+GET /api/admin/export.csv
+```
+
+The CSV contains participant code, PRE timestamp, server-stored quiz score, POST timestamp, and derived completion state. It intentionally excludes names and answer details.
+
+**Security limitation:** this endpoint has no authentication or authorization and is development/portfolio functionality only. Do not expose it publicly until access control is added.
+
 ## Run locally
 
 Requirements: Java 17 and Docker Desktop (or another PostgreSQL 16 instance).
@@ -94,7 +126,7 @@ Tests use an isolated in-memory database; production and local runtime configura
 ## Planned architecture
 
 ```text
-React / TypeScript
+React / TypeScript (planned; no frontend is currently committed)
         ↓
 Spring Boot REST DTOs
         ↓

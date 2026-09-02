@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.boombaka.neurolearn.assessment.exception.AssessmentAlreadySubmittedException;
 import com.boombaka.neurolearn.assessment.exception.ParticipantNotFoundException;
+import com.boombaka.neurolearn.certificate.exception.CertificateGenerationException;
+import com.boombaka.neurolearn.completion.exception.CourseNotCompletedException;
 import com.boombaka.neurolearn.quiz.exception.InvalidQuizAnswersException;
 import com.boombaka.neurolearn.quiz.exception.QuizAlreadySubmittedException;
 
@@ -67,6 +69,18 @@ public class GlobalExceptionHandler {
     ResponseEntity<ApiError> handleInvalidQuizAnswers(InvalidQuizAnswersException exception) {
         return error(HttpStatus.BAD_REQUEST, "INVALID_QUIZ_ANSWERS",
                 exception.getMessage(), Map.of());
+    }
+
+    @ExceptionHandler(CourseNotCompletedException.class)
+    ResponseEntity<ApiError> handleCourseNotCompleted(CourseNotCompletedException exception) {
+        return error(HttpStatus.CONFLICT, "COURSE_NOT_COMPLETED",
+                exception.getMessage(), Map.of());
+    }
+
+    @ExceptionHandler(CertificateGenerationException.class)
+    ResponseEntity<ApiError> handleCertificateGeneration() {
+        return error(HttpStatus.INTERNAL_SERVER_ERROR, "CERTIFICATE_GENERATION_FAILED",
+                "The certificate PDF could not be generated", Map.of());
     }
 
     private ResponseEntity<ApiError> error(
