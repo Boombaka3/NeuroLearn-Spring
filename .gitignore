@@ -2,10 +2,15 @@
 .env.*
 !.env.example
 
-backend/target/
 target/
+**/target/
 node_modules/
+**/node_modules/
 dist/
+**/dist/
+coverage/
+**/coverage/
+*.tsbuildinfo
 
 .idea/
 .vscode/
@@ -17,6 +22,16 @@ dist/
 .DS_Store
 Thumbs.db
 *.log
+logs/
+**/logs/
+
+# Local runtime output
+*.pdf
+uploads/
+data/
+tmp/
+*.dump
+*.hprof
 
 # Local engineering/audit context — never commit
 .project_local/

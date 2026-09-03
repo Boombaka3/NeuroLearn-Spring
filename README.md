@@ -1,15 +1,15 @@
 # NeuroLearn
 
-NeuroLearn is a portfolio learning application whose first student-facing course is **Brain × AI 101**. The implemented repository is currently a Java/Spring Boot backend: it records anonymous pre-course and post-course assessments, scores a fixed quiz on the server, evaluates completion, generates completion certificates, and exports minimal administrative CSV data.
+NeuroLearn is a full-stack portfolio learning application whose first student-facing course is **Brain × AI 101**. Its React client guides learners through the course while its Spring Boot API records anonymous assessments, scores a fixed quiz on the server, evaluates completion, generates certificates, and exports minimal administrative CSV data.
 
 The product name is **NeuroLearn**. **Brain × AI 101** is the course name.
 
 ## Architecture
 
-The intended full-stack boundary is:
+The implemented full-stack boundary is:
 
 ```text
-React / TypeScript (not yet implemented in this repository)
+React / TypeScript
         ↓ HTTP/JSON
 Spring Boot REST API
         ↓
@@ -20,7 +20,7 @@ Spring Data JPA
 PostgreSQL
 ```
 
-The current implementation begins at the Spring Boot REST API. Controllers handle HTTP concerns, services own business rules and transactions, repositories own persistence, and API DTOs keep JPA entities out of responses.
+The frontend uses typed API modules and local React state, with a participant code retained in `sessionStorage`. Controllers handle HTTP concerns, services own business rules and transactions, repositories own persistence, and API DTOs keep JPA entities out of responses.
 
 ## Implemented features
 
@@ -34,6 +34,9 @@ The current implementation begins at the Spring Boot REST API. Controllers handl
 - Minimal administrative completion export in CSV format
 - Centralized, stable JSON validation and domain-error responses
 - Forward-only Flyway migrations with Hibernate schema validation
+- Responsive React student flow with loading and backend-error states
+- Typed browser integration for assessments, quiz, completion, and PDF download
+- Configurable exact-origin CORS policy
 
 ## Implemented technology stack
 
@@ -48,8 +51,9 @@ The current implementation begins at the Spring Boot REST API. Controllers handl
 - Maven Wrapper
 - JUnit 5, AssertJ, Mockito, MockMvc, and H2 in PostgreSQL compatibility mode for tests
 - Docker Compose for the local PostgreSQL service
+- React 19, TypeScript 7, and Vite 8
+- Vitest and Testing Library
 
-React and TypeScript are not listed here because no frontend is currently committed.
 
 ## Repository structure
 
@@ -69,6 +73,11 @@ React and TypeScript are not listed here because no frontend is currently commit
 │   ├── src/main/resources/
 │   │   └── db/migration/             Versioned Flyway SQL
 │   └── src/test/                     Unit, persistence, and MockMvc tests
+├── frontend/
+│   ├── src/api/                      Typed Spring API client modules
+│   ├── src/components/               Reusable course UI components
+│   ├── src/types/                    API contracts
+│   └── src/styles/                   Responsive application styling
 ├── compose.yaml                      Local PostgreSQL service
 ├── .env.example                      Non-secret local configuration example
 └── README.md
@@ -122,7 +131,13 @@ Set-Location backend
 
 ## Frontend commands
 
-No frontend directory or `package.json` is currently committed, so there is no frontend install, test, or build command yet. Browser integration must not be claimed until a real React/TypeScript client and its contract tests exist.
+```powershell
+Set-Location frontend
+npm install
+npm run dev
+```
+
+The development client uses `http://localhost:8080` unless `VITE_API_BASE_URL` is set. Validate it with `npm test` and `npm run build`.
 
 ## API summary
 
@@ -176,12 +191,11 @@ Tests use isolated H2 with PostgreSQL compatibility mode and execute the real Fl
 
 Runtime database values are supplied through `POSTGRES_HOST`, `POSTGRES_PORT`, `POSTGRES_DB`, `POSTGRES_USER`, and required `POSTGRES_PASSWORD` environment variables. No credential is committed.
 
-No CORS policy is configured because there is no browser client in this repository. A future separately hosted frontend will need an explicit allowlist; a wildcard policy should not be assumed.
+Browser access uses an exact CORS origin configured by `FRONTEND_ORIGIN`, defaulting locally to `http://localhost:5173`. It does not use an unrestricted wildcard. Frontend builds use `VITE_API_BASE_URL` to select the API.
 
 ## Known limitations
 
 - `/api/admin/export.csv` has no authentication or authorization and must not be exposed publicly.
-- No frontend is implemented; React/TypeScript integration, loading states, and browser error handling are unverified.
 - Automated integration tests use H2 compatibility mode rather than a real PostgreSQL container.
 - Docker Compose provisions PostgreSQL only; the backend has no Docker image.
 - Certificate PDFs are generated on demand but are not cryptographically signed or independently verifiable.
