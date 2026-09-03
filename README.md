@@ -172,6 +172,8 @@ Completion and certificates add no stored state, so they require no additional m
 
 ## Tests
 
+GitHub Actions runs the backend tests/package and frontend tests/build on pushes to `main` and pull requests. The same checks can be run locally with the commands below.
+
 The suite contains focused DTO-validation and service tests plus persistence and MockMvc integration tests. It covers:
 
 - Valid and invalid assessment submissions
