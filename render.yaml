@@ -1,0 +1,36 @@
+services:
+  - type: web
+    name: neurolearn
+    runtime: docker
+    plan: free
+    region: ohio
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/health
+    autoDeployTrigger: checksPass
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: DATABASE_URL
+        fromDatabase:
+          name: neurolearn-postgres
+          property: connectionString
+      - key: DB_USERNAME
+        fromDatabase:
+          name: neurolearn-postgres
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: neurolearn-postgres
+          property: password
+      - key: FRONTEND_ORIGIN
+        sync: false
+      - key: ADMIN_API_KEY
+        generateValue: true
+
+databases:
+  - name: neurolearn-postgres
+    plan: free
+    region: ohio
+    databaseName: neurolearn
+    user: neurolearn
+    ipAllowList: []
