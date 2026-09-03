@@ -129,6 +129,8 @@ Set-Location backend
 .\mvnw.cmd package
 ```
 
+The production profile requires `SPRING_DATASOURCE_URL`, `DB_USERNAME`, `DB_PASSWORD`, `FRONTEND_ORIGIN`, and `ADMIN_API_KEY`. Hosting platforms can supply `PORT`; local startup continues to default to 8080. The container entrypoint also accepts a provider-style `DATABASE_URL` and converts its documented PostgreSQL scheme to the JDBC form expected by Spring.
+
 ## Frontend commands
 
 ```powershell
@@ -194,6 +196,16 @@ Tests use isolated H2 with PostgreSQL compatibility mode and execute the real Fl
 Runtime database values are supplied through `POSTGRES_HOST`, `POSTGRES_PORT`, `POSTGRES_DB`, `POSTGRES_USER`, and required `POSTGRES_PASSWORD` environment variables. Administrative exports require `ADMIN_API_KEY` in the `X-Admin-Key` request header; when the key is not configured, the route returns `503` rather than exposing data. No credential is committed.
 
 Browser access uses an exact CORS origin configured by `FRONTEND_ORIGIN`, defaulting locally to `http://localhost:5173`. It does not use an unrestricted wildcard. Frontend builds use `VITE_API_BASE_URL` to select the API.
+
+## Container image
+
+The root `Dockerfile` builds the Vite client and packages it into Spring Boot's static resources, then runs the application as a non-root user on Java 17. This same-origin production layout avoids mixed-content and cross-origin coupling while retaining explicit CORS configuration for separately hosted clients.
+
+```powershell
+docker build -t neurolearn .
+```
+
+The local Docker engine was unavailable during the latest audit, so the public image definition is present but its container build is not claimed as locally verified.
 
 ## Known limitations
 
