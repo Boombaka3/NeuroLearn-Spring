@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.boombaka.neurolearn.assessment.exception.AssessmentAlreadySubmittedException;
 import com.boombaka.neurolearn.assessment.exception.ParticipantNotFoundException;
+import com.boombaka.neurolearn.admin.security.AdminAccessException;
 import com.boombaka.neurolearn.certificate.exception.CertificateGenerationException;
 import com.boombaka.neurolearn.completion.exception.CourseNotCompletedException;
 import com.boombaka.neurolearn.quiz.exception.InvalidQuizAnswersException;
@@ -22,6 +23,12 @@ import com.boombaka.neurolearn.quiz.exception.QuizAlreadySubmittedException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(AdminAccessException.class)
+    ResponseEntity<ApiError> handleAdminAccess(AdminAccessException exception) {
+        return error(exception.getStatus(), exception.getCode(),
+                exception.getMessage(), Map.of());
+    }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     ResponseEntity<ApiError> handleValidation(MethodArgumentNotValidException exception) {

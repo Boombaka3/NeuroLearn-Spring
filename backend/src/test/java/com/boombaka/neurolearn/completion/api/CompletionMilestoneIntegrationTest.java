@@ -20,7 +20,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
+@SpringBootTest(properties = "neurolearn.admin-api-key=test-admin-key")
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @Transactional
@@ -66,7 +66,8 @@ class CompletionMilestoneIntegrationTest {
         assertThat(certificate.getResponse().getContentAsByteArray())
                 .startsWith("%PDF".getBytes(StandardCharsets.US_ASCII));
 
-        mockMvc.perform(get("/api/admin/export.csv"))
+        mockMvc.perform(get("/api/admin/export.csv")
+                        .header("X-Admin-Key", "test-admin-key"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith("text/csv"))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString(

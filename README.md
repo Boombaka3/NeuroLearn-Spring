@@ -150,7 +150,7 @@ The development client uses `http://localhost:8080` unless `VITE_API_BASE_URL` i
 | `POST` | `/api/quiz/submissions` | Validate answers, calculate the trusted score, and persist the submission |
 | `GET` | `/api/completion/{participantCode}` | Return stored prerequisite status and derived completion |
 | `POST` | `/api/certificates` | Return a PDF certificate for a completed participant |
-| `GET` | `/api/admin/export.csv` | Download the unauthenticated portfolio/admin completion export |
+| `GET` | `/api/admin/export.csv` | Download the API-key-protected administrative completion export |
 
 Participant codes contain 6–32 letters or numbers separated by single hyphens. Assessment values are required integers from 1 through 5. Quiz submissions require exactly `q1` through `q5`, with options `A` through `D`. Unknown JSON properties are rejected.
 
@@ -189,13 +189,13 @@ Tests use isolated H2 with PostgreSQL compatibility mode and execute the real Fl
 
 ## Configuration and CORS
 
-Runtime database values are supplied through `POSTGRES_HOST`, `POSTGRES_PORT`, `POSTGRES_DB`, `POSTGRES_USER`, and required `POSTGRES_PASSWORD` environment variables. No credential is committed.
+Runtime database values are supplied through `POSTGRES_HOST`, `POSTGRES_PORT`, `POSTGRES_DB`, `POSTGRES_USER`, and required `POSTGRES_PASSWORD` environment variables. Administrative exports require `ADMIN_API_KEY` in the `X-Admin-Key` request header; when the key is not configured, the route returns `503` rather than exposing data. No credential is committed.
 
 Browser access uses an exact CORS origin configured by `FRONTEND_ORIGIN`, defaulting locally to `http://localhost:5173`. It does not use an unrestricted wildcard. Frontend builds use `VITE_API_BASE_URL` to select the API.
 
 ## Known limitations
 
-- `/api/admin/export.csv` has no authentication or authorization and must not be exposed publicly.
+- The administrative API key is a narrow protection for one portfolio endpoint, not a user identity system, key-management service, or replacement for a full authorization design.
 - Automated integration tests use H2 compatibility mode rather than a real PostgreSQL container.
 - Docker Compose provisions PostgreSQL only; the backend has no Docker image.
 - Certificate PDFs are generated on demand but are not cryptographically signed or independently verifiable.
