@@ -15,7 +15,7 @@ describe('API client', () => {
   })
 
   it('returns certificate content and its server filename', async () => {
-    vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(new Blob(['%PDF']), { status: 200, headers: { 'Content-Disposition': 'attachment; filename="brain-ai-101-alex.pdf"' } }))
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('%PDF', { status: 200, headers: { 'Content-Disposition': 'attachment; filename="brain-ai-101-alex.pdf"' } }))
     const result = await postForBlob('/api/certificates', { participantCode: 'BRAIN-101', displayName: 'Alex Doe' })
     expect(result.filename).toBe('brain-ai-101-alex.pdf')
     expect(result.blob.size).toBeGreaterThan(0)
