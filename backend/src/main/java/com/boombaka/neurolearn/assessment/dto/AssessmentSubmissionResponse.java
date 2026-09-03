@@ -11,7 +11,9 @@ public record AssessmentSubmissionResponse(
         String participantCode,
         AssessmentType type,
         Instant submittedAt,
-        AssessmentAnswers answers) {
+        AssessmentAnswers answers,
+        AssessmentDetails details,
+        boolean skipped) {
 
     public static AssessmentSubmissionResponse from(AssessmentSubmission submission) {
         return new AssessmentSubmissionResponse(
@@ -22,6 +24,25 @@ public record AssessmentSubmissionResponse(
                 new AssessmentAnswers(
                         submission.getAiFamiliarity(),
                         submission.getNeuronUnderstanding(),
-                        submission.getAiUnderstanding()));
+                        submission.getAiUnderstanding()),
+                detailsFrom(submission),
+                submission.isSkipped());
+    }
+
+    private static AssessmentDetails detailsFrom(AssessmentSubmission submission) {
+        if (submission.getNeuronPartsRating() == null) {
+            return null;
+        }
+        return new AssessmentDetails(
+                submission.getNeuronPartsRating(),
+                submission.getNeuronSignalsRating(),
+                submission.getBiologyAiRelationshipRating(),
+                submission.getArtificialNetworksRating(),
+                submission.getLearningFromFeedbackRating(),
+                submission.getContinuedInterestRating(),
+                submission.getLearningGoal(),
+                submission.getMostHelpful(),
+                submission.getImprovementIdeas(),
+                submission.getAdditionalComments());
     }
 }

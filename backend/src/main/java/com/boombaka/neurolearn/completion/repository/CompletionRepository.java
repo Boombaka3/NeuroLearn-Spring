@@ -34,7 +34,7 @@ public interface CompletionRepository extends Repository<CourseParticipant, UUID
                 post.submittedAt)
             FROM CourseParticipant participant
             LEFT JOIN AssessmentSubmission pre
-                ON pre.participant = participant AND pre.type = :preType
+                ON pre.participant = participant AND pre.type = :preType AND pre.skipped = false
             LEFT JOIN QuizSubmission quiz
                 ON quiz.participant = participant
             LEFT JOIN AssessmentSubmission post

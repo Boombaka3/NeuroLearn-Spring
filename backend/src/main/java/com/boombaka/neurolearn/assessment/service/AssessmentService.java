@@ -13,6 +13,7 @@ import com.boombaka.neurolearn.assessment.domain.AssessmentSubmission;
 import com.boombaka.neurolearn.assessment.domain.AssessmentType;
 import com.boombaka.neurolearn.assessment.domain.CourseParticipant;
 import com.boombaka.neurolearn.assessment.dto.AssessmentAnswers;
+import com.boombaka.neurolearn.assessment.dto.AssessmentDetails;
 import com.boombaka.neurolearn.assessment.dto.AssessmentSubmissionRequest;
 import com.boombaka.neurolearn.assessment.dto.AssessmentSubmissionResponse;
 import com.boombaka.neurolearn.assessment.dto.ParticipantAssessmentResponse;
@@ -74,13 +75,25 @@ public class AssessmentService {
         }
 
         AssessmentAnswers answers = request.answers();
+        AssessmentDetails details = request.details();
         AssessmentSubmission submission = new AssessmentSubmission(
                 participant,
                 type,
                 Instant.now(clock),
                 answers.aiFamiliarity(),
                 answers.neuronUnderstanding(),
-                answers.aiUnderstanding());
+                answers.aiUnderstanding(),
+                details == null ? null : details.neuronParts(),
+                details == null ? null : details.neuronSignals(),
+                details == null ? null : details.biologyAiRelationship(),
+                details == null ? null : details.artificialNetworks(),
+                details == null ? null : details.learningFromFeedback(),
+                details == null ? null : details.continuedInterest(),
+                details == null ? null : details.learningGoal(),
+                details == null ? null : details.mostHelpful(),
+                details == null ? null : details.improvementIdeas(),
+                details == null ? null : details.additionalComments(),
+                request.skipped());
 
         try {
             return AssessmentSubmissionResponse.from(submissionRepository.saveAndFlush(submission));

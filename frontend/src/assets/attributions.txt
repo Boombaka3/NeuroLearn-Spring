@@ -1,0 +1,50 @@
+# Brain × AI 101 — Third-Party Attributions
+# Last updated: July 2026
+
+# INTERACTIVE DEMOS
+CNN Explainer
+https://github.com/poloclub/cnn-explainer
+License: MIT
+
+TensorFlow Playground
+https://github.com/tensorflow/playground
+License: Apache 2.0
+
+K-Means Clustering Demo
+https://github.com/thinkphp/k-means-clustering
+License: MIT
+
+Web RL Playground
+https://github.com/awjuliani/web-rl-playground
+License: Apache 2.0
+
+Reinforcement Learning Interactive Exhibit
+https://imaginary.github.io/reinforcement-learning-2/exhibit.html?lang=en
+
+Neuron — PhET Interactive Simulations, University of Colorado Boulder
+https://github.com/phetsims/neuron
+License: GPL-3.0
+https://phet.colorado.edu
+
+Backprop Explainer
+https://github.com/xnought/backprop-explainer
+License: MIT
+
+NeuroCorrelation
+https://github.com/Axelwickm/NeuroCorrelation
+License: MIT
+
+# IMAGES & VISUAL ASSETS
+Abstract AI Brain with Neural Network Lines
+https://stock.adobe.com/images/abstract-ai-brain-with-neural-network-lines-artificial-intelligence-concept-isolated-on-transparent-png-background/1949482971
+License: Adobe Stock
+
+Brain Sciences Figure brainsci-12-00470-g001
+https://www.mdpi.com/brainsci/brainsci-12-00470/article_deploy/html/images/brainsci-12-00470-g001.png
+License: CC BY 4.0
+doi:10.3390/brainsci12040470
+
+# LAB ASSETS
+SMILE Lab Banner
+https://lab-smile.github.io/img/misc/smilebanner.png
+Owner: SMILE Lab, University of Florida

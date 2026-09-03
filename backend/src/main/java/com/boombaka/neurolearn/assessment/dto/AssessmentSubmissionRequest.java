@@ -12,5 +12,16 @@ public record AssessmentSubmissionRequest(
         @Pattern(regexp = "^[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*$",
                 message = "must contain only letters, numbers, and single hyphens")
         String participantCode,
-        @NotNull @Valid AssessmentAnswers answers) {
+        @NotNull @Valid AssessmentAnswers answers,
+        @Valid AssessmentDetails details,
+        boolean skipped) {
+
+    public AssessmentSubmissionRequest(String participantCode, AssessmentAnswers answers) {
+        this(participantCode, answers, null, false);
+    }
+
+    public AssessmentSubmissionRequest(
+            String participantCode, AssessmentAnswers answers, AssessmentDetails details) {
+        this(participantCode, answers, details, false);
+    }
 }

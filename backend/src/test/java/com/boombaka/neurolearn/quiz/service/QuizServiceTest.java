@@ -64,8 +64,8 @@ class QuizServiceTest {
 
         assertThat(response.participantCode()).isEqualTo("LEARNER-101");
         assertThat(response.submittedAt()).isEqualTo(NOW);
-        assertThat(response.score()).isEqualTo(5);
-        assertThat(response.total()).isEqualTo(5);
+        assertThat(response.score()).isEqualTo(10);
+        assertThat(response.total()).isEqualTo(10);
         assertThat(response.percentage()).isEqualTo(100.0);
         verify(submissionRepository).saveAndFlush(any(QuizSubmission.class));
     }
@@ -96,6 +96,7 @@ class QuizServiceTest {
 
     private QuizSubmissionRequest request(String participantCode) {
         return new QuizSubmissionRequest(participantCode, Map.of(
-                "q1", "B", "q2", "A", "q3", "C", "q4", "D", "q5", "B"));
+                "q1", "C", "q2", "A", "q3", "D", "q4", "A", "q5", "C",
+                "q6", "B", "q7", "D", "q8", "C", "q9", "D", "q10", "B"));
     }
 }

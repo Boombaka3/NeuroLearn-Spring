@@ -14,9 +14,9 @@ public record QuizSubmissionRequest(
                 message = "must contain only letters, numbers, and single hyphens")
         String participantCode,
         @NotNull
-        @Size(min = 5, max = 5, message = "must contain answers for all 5 questions")
+        @Size(min = 10, max = 10, message = "must contain answers for all 10 questions")
         Map<
-                @Pattern(regexp = "^q[1-5]$", message = "must be a known question id") String,
+                @Pattern(regexp = "^q(?:10|[1-9])$", message = "must be a known question id") String,
                 @NotBlank @Pattern(regexp = "^[A-D]$", message = "must be A, B, C, or D") String>
                 answers) {
 

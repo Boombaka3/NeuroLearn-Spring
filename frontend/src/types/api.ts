@@ -1,34 +1,33 @@
-export type AssessmentType = 'PRE' | 'POST'
-
-export interface AssessmentAnswers {
-  aiFamiliarity: number
-  neuronUnderstanding: number
-  aiUnderstanding: number
+export interface ApiErrorPayload {
+  timestamp?: string
+  status?: number
+  code?: string
+  message?: string
+  fieldErrors?: Record<string, string>
 }
 
-export interface AssessmentSubmissionRequest {
-  participantCode: string
-  answers: AssessmentAnswers
+export interface SpringAssessmentDetails {
+  neuronParts: number
+  neuronSignals: number
+  biologyAiRelationship: number
+  artificialNetworks: number
+  learningFromFeedback: number
+  continuedInterest: number
+  learningGoal?: string
+  mostHelpful?: string
+  improvementIdeas?: string
+  additionalComments?: string
 }
 
-export interface AssessmentSubmissionResponse extends AssessmentSubmissionRequest {
+export interface SpringAssessmentResponse {
   id: string
-  type: AssessmentType
+  participantCode: string
+  type: 'PRE' | 'POST'
   submittedAt: string
+  skipped: boolean
 }
 
-export interface ParticipantAssessmentResponse {
-  participantCode: string
-  createdAt: string
-  submissions: AssessmentSubmissionResponse[]
-}
-
-export interface QuizSubmissionRequest {
-  participantCode: string
-  answers: Record<string, string>
-}
-
-export interface QuizSubmissionResponse {
+export interface SpringQuizResponse {
   id: string
   participantCode: string
   submittedAt: string
@@ -37,24 +36,13 @@ export interface QuizSubmissionResponse {
   percentage: number
 }
 
-export interface CompletionStatusResponse {
+export interface SpringCompletionResponse {
   participantCode: string
   preAssessmentSubmitted: boolean
-  preSubmittedAt: string | null
   quizSubmitted: boolean
-  quizSubmittedAt: string | null
   quizScore: number | null
   quizTotal: number | null
   postAssessmentSubmitted: boolean
-  postSubmittedAt: string | null
   complete: boolean
   completedAt: string | null
-}
-
-export interface ApiErrorBody {
-  timestamp: string
-  status: number
-  code: string
-  message: string
-  fieldErrors: Record<string, string>
 }

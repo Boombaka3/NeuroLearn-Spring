@@ -60,4 +60,19 @@ class AssessmentSubmissionRequestValidationTest {
                 .extracting(violation -> violation.getPropertyPath().toString())
                 .containsExactlyInAnyOrder("answers.aiFamiliarity", "answers.aiUnderstanding");
     }
+
+    @Test
+    void rejectsCanonicalDetailOutsideLikertRange() {
+        AssessmentDetails details = new AssessmentDetails(
+                0, 2, 3, 4, 5, 6,
+                "Learn the basics", null, null, null);
+        AssessmentSubmissionRequest request = new AssessmentSubmissionRequest(
+                "LEARNER-001", new AssessmentAnswers(3, 4, 5), details);
+
+        Set<ConstraintViolation<AssessmentSubmissionRequest>> violations = validator.validate(request);
+
+        assertThat(violations)
+                .extracting(violation -> violation.getPropertyPath().toString())
+                .containsExactlyInAnyOrder("details.neuronParts", "details.continuedInterest");
+    }
 }

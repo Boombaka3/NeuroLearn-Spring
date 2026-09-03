@@ -2,3 +2,7 @@
 mvnw text eol=lf
 *.cmd text eol=crlf
 *.jar binary
+
+# Preserve generated third-party/course assets byte-for-byte without text diff checks.
+frontend/public/vendor/** -diff
+frontend/src/assets/** -diff

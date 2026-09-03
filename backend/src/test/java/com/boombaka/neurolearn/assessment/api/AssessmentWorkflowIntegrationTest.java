@@ -48,6 +48,47 @@ class AssessmentWorkflowIntegrationTest {
     }
 
     @Test
+    void persistsAndReturnsCanonicalEvaluationDetails() throws Exception {
+        String body = """
+                {
+                  "participantCode": "CANONICAL-001",
+                  "answers": {
+                    "aiFamiliarity": 4,
+                    "neuronUnderstanding": 5,
+                    "aiUnderstanding": 4
+                  },
+                  "details": {
+                    "neuronParts": 5,
+                    "neuronSignals": 4,
+                    "biologyAiRelationship": 4,
+                    "artificialNetworks": 5,
+                    "learningFromFeedback": 3,
+                    "continuedInterest": 5,
+                    "learningGoal": "Connect biology and AI",
+                    "mostHelpful": "Interactive labs",
+                    "improvementIdeas": "More examples",
+                    "additionalComments": "Clear and engaging"
+                  },
+                  "skipped": false
+                }
+                """;
+
+        mockMvc.perform(post("/api/assessments/pre")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.details.neuronParts").value(5))
+                .andExpect(jsonPath("$.details.learningGoal").value("Connect biology and AI"))
+                .andExpect(jsonPath("$.skipped").value(false));
+
+        mockMvc.perform(get("/api/assessments/participants/CANONICAL-001"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.submissions[0].details.continuedInterest").value(5))
+                .andExpect(jsonPath("$.submissions[0].details.additionalComments")
+                        .value("Clear and engaging"));
+    }
+
+    @Test
     void rejectsInvalidParticipantCode() throws Exception {
         submit("/api/assessments/pre", "bad code", 3, 4, 5)
                 .andExpect(status().isBadRequest())

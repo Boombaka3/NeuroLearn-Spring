@@ -1,12 +1,10 @@
 # NeuroLearn
 
-NeuroLearn is a full-stack portfolio learning application whose first student-facing course is **Brain × AI 101**. Its React client guides learners through the course while its Spring Boot API records anonymous assessments, scores a fixed quiz on the server, evaluates completion, generates certificates, and exports minimal administrative CSV data.
+NeuroLearn is a full-stack portfolio learning application. Its first student-facing course, **Brain × AI 101**, combines interactive lessons and labs with a Spring Boot backend that records anonymous evaluations, scores a fixed quiz, evaluates completion, generates certificates, and exports a minimal administrative CSV.
 
 The product name is **NeuroLearn**. **Brain × AI 101** is the course name.
 
 ## Architecture
-
-The implemented full-stack boundary is:
 
 ```text
 React / TypeScript
@@ -20,96 +18,81 @@ Spring Data JPA
 PostgreSQL
 ```
 
-The frontend uses typed API modules and local React state, with a participant code retained in `sessionStorage`. Controllers handle HTTP concerns, services own business rules and transactions, repositories own persistence, and API DTOs keep JPA entities out of responses.
+The canonical course client uses Redux Toolkit for navigation and language state and browser storage for non-sensitive course progress. The Spring service remains authoritative for quiz scores, persisted submissions, completion, and certificate eligibility. Controllers handle HTTP concerns, services own business rules and transactions, repositories own persistence, and DTOs keep JPA entities out of the API.
 
 ## Implemented features
 
-- Health endpoint
+- English and Chinese Brain × AI 101 course interface
+- Three interactive course modules covering neurons, neural networks, and training
+- Animated diagrams, 3D assets, clustering/convolution labs, and embedded educational simulations
 - Anonymous participant codes; student names are not stored
-- Validated PRE and POST assessment submissions
-- Backend-owned quiz answer key and deterministic scoring
-- Normalized quiz-answer and score persistence
-- Completion derived from PRE assessment, quiz, and POST assessment records
+- Validated PRE and POST evaluations with six fixed ratings and optional reflections
+- Ten-question quiz scored only by the backend
+- Normalized answer and calculated-score persistence
+- Completion derived from a non-skipped PRE evaluation, quiz, and POST evaluation
 - On-demand PDF certificates for completed participants
-- Minimal administrative completion export in CSV format
-- Centralized, stable JSON validation and domain-error responses
+- API-key-protected administrative CSV export
+- Stable JSON validation and domain errors
 - Forward-only Flyway migrations with Hibernate schema validation
-- Responsive React student flow with loading and backend-error states
-- Typed browser integration for assessments, quiz, completion, and PDF download
-- Configurable exact-origin CORS policy
+- Environment-configured API URL and exact-origin CORS
+- Automated Java and frontend verification in GitHub Actions
 
-## Implemented technology stack
+## Technology stack
 
-- Java 17
-- Spring Boot 3.5
-- Spring Web
-- Jakarta Bean Validation
-- Spring Data JPA and Hibernate
-- PostgreSQL 16 for local/runtime persistence
-- Flyway
+- Java 17, Spring Boot 3.5, Spring Web
+- Jakarta Bean Validation, Spring Data JPA, Hibernate
+- PostgreSQL 16, Flyway
 - Apache PDFBox 3
-- Maven Wrapper
-- JUnit 5, AssertJ, Mockito, MockMvc, and H2 in PostgreSQL compatibility mode for tests
-- Docker Compose for the local PostgreSQL service
-- React 19, TypeScript 7, and Vite 8
+- Maven Wrapper, JUnit 5, AssertJ, Mockito, MockMvc
+- H2 in PostgreSQL compatibility mode for automated integration tests
+- React 19, TypeScript 5.9, Vite 7
+- Redux Toolkit, React Three Fiber, Three.js, Framer Motion, GSAP
 - Vitest and Testing Library
-
 
 ## Repository structure
 
 ```text
 .
 ├── backend/
-│   ├── .mvn/                         Maven Wrapper support
 │   ├── src/main/java/.../
-│   │   ├── assessment/               PRE/POST workflow and participant model
-│   │   ├── quiz/                     Server-side scoring and quiz persistence
-│   │   ├── completion/               Derived course-completion status
-│   │   ├── certificate/              PDF certificate generation
-│   │   ├── admin/                    CSV export
-│   │   ├── common/error/             Stable centralized API errors
-│   │   ├── config/                   Application clock configuration
-│   │   └── health/                   Health endpoint
-│   ├── src/main/resources/
-│   │   └── db/migration/             Versioned Flyway SQL
-│   └── src/test/                     Unit, persistence, and MockMvc tests
+│   │   ├── assessment/       participant and PRE/POST workflow
+│   │   ├── quiz/             trusted scoring and persistence
+│   │   ├── completion/       derived completion status
+│   │   ├── certificate/      PDF certificate generation
+│   │   ├── admin/            protected CSV export
+│   │   ├── common/error/     centralized API errors
+│   │   ├── config/           CORS and application configuration
+│   │   └── health/           health endpoint
+│   ├── src/main/resources/db/migration/
+│   └── src/test/
 ├── frontend/
-│   ├── src/api/                      Typed Spring API client modules
-│   ├── src/components/               Reusable course UI components
-│   ├── src/types/                    API contracts
-│   └── src/styles/                   Responsive application styling
-├── compose.yaml                      Local PostgreSQL service
-├── .env.example                      Non-secret local configuration example
-└── README.md
+│   ├── public/               models, simulations, runtime assets
+│   ├── src/modules/          course modules and evaluations
+│   ├── src/components/       shared UI and visual components
+│   ├── src/lib/api/          Spring REST adapters
+│   ├── src/store/            Redux state
+│   └── src/i18n/             English and Chinese copy
+├── compose.yaml              local PostgreSQL
+├── Dockerfile                optional same-origin application image
+├── render.yaml               optional Render full-stack blueprint
+└── .github/workflows/ci.yml  backend and frontend CI
 ```
 
 ## Local setup
 
-Requirements:
-
-- Java 17
-- Docker Desktop, Rancher Desktop, or another PostgreSQL 16 instance
-
-Create local environment configuration:
+Requirements: Java 17, Node.js 22 or newer, and PostgreSQL 16 (directly or through Docker).
 
 ```powershell
 Copy-Item .env.example .env
-```
-
-The example password is for local development only. Replace it before using any shared environment. The application and Compose configuration fail fast when `POSTGRES_PASSWORD` is absent.
-
-## Start the database
-
-```powershell
 docker compose up -d postgres
 docker compose ps
 ```
 
-Docker Compose reads the root `.env` file automatically.
+The example password is local-only. Replace it before using a shared environment. The application and Compose configuration fail fast when `POSTGRES_PASSWORD` is absent.
 
-## Backend commands
+### Backend
 
-Spring Boot does not automatically load the root `.env` file, so expose the same settings to the backend process:
+Spring Boot does not automatically load the root `.env`, so expose its values to the process:
 
 ```powershell
 $env:POSTGRES_DB = "neurolearn"
@@ -119,110 +102,94 @@ Set-Location backend
 .\mvnw.cmd spring-boot:run
 ```
 
-Verify the application at `http://localhost:8080/api/health`.
-
-Build and test:
+Health check: `http://localhost:8080/api/health`.
 
 ```powershell
-Set-Location backend
 .\mvnw.cmd test
 .\mvnw.cmd package
 ```
 
-The production profile requires `SPRING_DATASOURCE_URL`, `DB_USERNAME`, `DB_PASSWORD`, `FRONTEND_ORIGIN`, and `ADMIN_API_KEY`. Hosting platforms can supply `PORT`; local startup continues to default to 8080. The container entrypoint also accepts a provider-style `DATABASE_URL` and converts its documented PostgreSQL scheme to the JDBC form expected by Spring.
-
-## Frontend commands
+### Frontend
 
 ```powershell
 Set-Location frontend
 npm install
 npm run dev
+npm test -- --run
+npm run build
 ```
 
-The development client uses `http://localhost:8080` unless `VITE_API_BASE_URL` is set. Validate it with `npm test` and `npm run build`.
+Development uses `http://localhost:8080` unless `VITE_API_BASE_URL` is set. Production builds use the configured URL; when it is omitted, requests are relative to the frontend origin.
 
 ## API summary
 
 | Method | Route | Purpose |
 | --- | --- | --- |
-| `GET` | `/api/health` | Application health response |
-| `POST` | `/api/assessments/pre` | Create a participant and submit the PRE assessment |
-| `POST` | `/api/assessments/post` | Submit the POST assessment for an existing participant |
+| `GET` | `/api/health` | Application health |
+| `POST` | `/api/assessments/pre` | Create a participant and persist the PRE evaluation |
+| `POST` | `/api/assessments/post` | Persist the POST evaluation |
 | `GET` | `/api/assessments/participants/{participantCode}` | Retrieve PRE/POST submissions as DTOs |
-| `POST` | `/api/quiz/submissions` | Validate answers, calculate the trusted score, and persist the submission |
-| `GET` | `/api/completion/{participantCode}` | Return stored prerequisite status and derived completion |
-| `POST` | `/api/certificates` | Return a PDF certificate for a completed participant |
-| `GET` | `/api/admin/export.csv` | Download the API-key-protected administrative completion export |
+| `POST` | `/api/quiz/submissions` | Validate ten answers, calculate the trusted score, and persist it |
+| `GET` | `/api/completion/{participantCode}` | Return prerequisite status and derived completion |
+| `POST` | `/api/certificates` | Return a PDF for a completed participant |
+| `GET` | `/api/admin/export.csv` | Download the `X-Admin-Key`-protected CSV export |
 
-Participant codes contain 6–32 letters or numbers separated by single hyphens. Assessment values are required integers from 1 through 5. Quiz submissions require exactly `q1` through `q5`, with options `A` through `D`. Unknown JSON properties are rejected.
+Participant codes contain 6–32 letters or numbers separated by single hyphens. Evaluation ratings are integers from 1 through 5. Quiz submissions require exactly `q1` through `q10`, with options `A` through `D`. Unknown JSON properties are rejected. The quiz request cannot supply a score or answer key.
 
-The browser cannot submit a trusted score: the quiz request contains only participant code and answers, while the backend answer key calculates the persisted and returned result.
+Certificate requests contain a participant code and a conservatively validated display name. The name is used only to draw that response and is not persisted. Generation returns `409 COURSE_NOT_COMPLETED` unless the stored completion rule passes.
 
-Certificate requests contain a participant code and a display name. The name is validated, drawn into that response, and never stored. Generation returns `409 COURSE_NOT_COMPLETED` unless PRE, quiz, and POST records all exist.
+## Database migrations
 
-## Database and migrations
-
-Flyway is the schema source of truth. Hibernate runs with `ddl-auto: validate`; it does not create or update runtime tables.
+Flyway is the schema source of truth and Hibernate uses `ddl-auto: validate`.
 
 | Migration | Purpose |
 | --- | --- |
-| `V1__initialize_neurolearn.sql` | Establish migration history |
-| `V2__create_assessment_tables.sql` | Participants and constrained assessment submissions |
-| `V3__create_quiz_tables.sql` | Quiz submissions, answers, score constraints, and indexes |
-
-Completion and certificates add no stored state, so they require no additional migration.
+| `V1__initialize_neurolearn.sql` | Baseline |
+| `V2__create_assessment_tables.sql` | Participants and assessment submissions |
+| `V3__create_quiz_tables.sql` | Quiz submissions, normalized answers, constraints, and indexes |
+| `V4__add_canonical_assessment_details.sql` | Six canonical ratings, reflections, and skipped-PRE state |
 
 ## Tests
 
-GitHub Actions runs the backend tests/package and frontend tests/build on pushes to `main` and pull requests. The same checks can be run locally with the commands below.
+The backend suite covers DTO validation, domain services, deterministic scoring, JPA persistence, migrations, MockMvc workflows, completion, PDF generation, CSV behavior, CORS, and admin access. The frontend tests cover Spring adapters and selected course interactions. GitHub Actions runs tests and builds on `main` pushes and pull requests.
 
-The suite contains focused DTO-validation and service tests plus persistence and MockMvc integration tests. It covers:
+Automated persistence tests use isolated H2 in PostgreSQL compatibility mode and execute all Flyway migrations. They do not accidentally connect to production, but a real PostgreSQL/Testcontainers suite is not yet present.
 
-- Valid and invalid assessment submissions
-- Malformed JSON, unknown participants, and duplicate submissions
-- Perfect, partial, and zero quiz scores
-- Missing/unexpected quiz questions and invalid options
-- Rejection of client-supplied scores
-- JPA persistence and database uniqueness constraints
-- Incomplete and complete participant status
-- Certificate eligibility, PDF structure/text, safe filenames, and name-length boundaries
-- CSV headers, stored rows, escaping, and empty datasets
-- The PRE → quiz → POST → completion → certificate → export workflow
+## Configuration and security boundaries
 
-Tests use isolated H2 with PostgreSQL compatibility mode and execute the real Flyway migrations. They do not connect to the configured production database. A real PostgreSQL/Testcontainers integration suite is not yet present.
+- Runtime database: `POSTGRES_HOST`, `POSTGRES_PORT`, `POSTGRES_DB`, `POSTGRES_USER`, required `POSTGRES_PASSWORD`.
+- Production profile: `SPRING_DATASOURCE_URL`, `DB_USERNAME`, `DB_PASSWORD`, `FRONTEND_ORIGIN`, and `ADMIN_API_KEY`.
+- Frontend build: `VITE_API_BASE_URL`.
+- The admin route requires `X-Admin-Key` and fails closed when no key is configured.
+- CORS accepts the exact configured `FRONTEND_ORIGIN`; it does not use a wildcard.
+- No user identity system, role model, rate limiting, or cryptographically signed certificate exists.
 
-## Configuration and CORS
+## Deployment
 
-Runtime database values are supplied through `POSTGRES_HOST`, `POSTGRES_PORT`, `POSTGRES_DB`, `POSTGRES_USER`, and required `POSTGRES_PASSWORD` environment variables. Administrative exports require `ADMIN_API_KEY` in the `X-Admin-Key` request header; when the key is not configured, the route returns `503` rather than exposing data. No credential is committed.
+The current Vercel target is the frontend only:
 
-Browser access uses an exact CORS origin configured by `FRONTEND_ORIGIN`, defaulting locally to `http://localhost:5173`. It does not use an unrestricted wildcard. Frontend builds use `VITE_API_BASE_URL` to select the API.
+| Vercel setting | Value |
+| --- | --- |
+| Repository | `Boombaka3/NeuroLearn-Spring` |
+| Production branch | `main` |
+| Root Directory | `frontend` |
+| Framework Preset | Vite |
+| Install Command | `npm install` (or auto-detected) |
+| Build Command | `npm run build` |
+| Output Directory | `dist` |
 
-## Container image
+The public frontend target is `https://neurolearn-spring.vercel.app`. A live frontend alone is not a full-stack deployment. The Spring Boot service and PostgreSQL must be hosted separately, then the Vercel Production environment must set `VITE_API_BASE_URL` to the real HTTPS backend origin and the backend must set `FRONTEND_ORIGIN=https://neurolearn-spring.vercel.app`.
 
-The root `Dockerfile` builds the Vite client and packages it into Spring Boot's static resources, then runs the application as a non-root user on Java 17. This same-origin production layout avoids mixed-content and cross-origin coupling while retaining explicit CORS configuration for separately hosted clients.
-
-```powershell
-docker build -t neurolearn .
-```
-
-The local Docker engine was unavailable during the latest audit, so the public image definition is present but its container build is not claimed as locally verified.
-
-## Render deployment
-
-The repository includes one `render.yaml` Blueprint for the actual selected topology: a Docker web service serving both the React client and Spring API, connected over Render's private network to managed PostgreSQL. The database blocks public-IP access, the admin key is generated by Render, and deployments wait for GitHub checks.
-
-To provision it, sign in to Render, create a **New Blueprint**, connect this GitHub repository, and select `render.yaml`. When prompted for `FRONTEND_ORIGIN`, enter the final HTTPS origin assigned to the `neurolearn` web service (for example, its exact `https://…onrender.com` URL, without a trailing slash). No secret belongs in Git.
-
-The Blueprint selects Render's free service and database plans. Render's current [free-tier documentation](https://render.com/docs/free) states that free PostgreSQL databases expire after 30 days and are then deleted after a grace period unless upgraded. Treat this as a time-limited portfolio deployment, export any wanted data before expiry, or explicitly approve a paid database plan.
+The root Dockerfile and Render Blueprint remain an alternative same-origin deployment path. Do not point this frontend at an unrelated or invented backend URL.
 
 ## Known limitations
 
-- The administrative API key is a narrow protection for one portfolio endpoint, not a user identity system, key-management service, or replacement for a full authorization design.
-- Automated integration tests use H2 compatibility mode rather than a real PostgreSQL container.
-- Docker Compose provisions PostgreSQL only; the backend has no Docker image.
-- Certificate PDFs are generated on demand but are not cryptographically signed or independently verifiable.
-- Certificate display names use a conservative Latin-character validation policy.
-- The CSV export is an in-memory, unpaginated portfolio utility intended for a small dataset.
-- No CI workflow, deployment configuration, API authentication, rate limiting, or production observability is currently included.
+- The Vercel frontend and Spring/PostgreSQL backend are separate deployment concerns; API workflows cannot work publicly until the real backend URL is configured.
+- Administrative API-key protection is intentionally narrow, not a complete authentication or authorization system.
+- Automated persistence tests use H2 compatibility mode rather than real PostgreSQL.
+- Large educational/3D assets increase initial transfer and the production build reports a chunk-size warning.
+- Certificate PDFs are generated on demand but are not cryptographically signed.
+- The CSV export is an in-memory, unpaginated utility intended for a small portfolio dataset.
+- Production observability and rate limiting are not implemented.
 
-This repository demonstrates a tested Spring backend; it should not be described as production-grade, enterprise, event-driven, a microservice system, RAG, or AI-powered.
+This repository should not be described as production-grade, enterprise, event-driven, a microservice system, RAG, or AI-powered.

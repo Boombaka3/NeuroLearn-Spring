@@ -12,11 +12,16 @@ import com.boombaka.neurolearn.quiz.exception.InvalidQuizAnswersException;
 public class QuizScoringService {
 
     private static final Map<String, String> ANSWER_KEY = Map.of(
-            "q1", "B",
+            "q1", "C",
             "q2", "A",
-            "q3", "C",
-            "q4", "D",
-            "q5", "B");
+            "q3", "D",
+            "q4", "A",
+            "q5", "C",
+            "q6", "B",
+            "q7", "D",
+            "q8", "C",
+            "q9", "D",
+            "q10", "B");
     private static final Set<String> VALID_OPTIONS = Set.of("A", "B", "C", "D");
 
     public QuizScore score(Map<String, String> answers) {
@@ -40,7 +45,7 @@ public class QuizScoringService {
 
         if (!missing.isEmpty() || !unexpected.isEmpty()) {
             throw new InvalidQuizAnswersException(
-                    "Quiz must contain exactly q1 through q5; missing="
+                    "Quiz must contain exactly q1 through q10; missing="
                             + missing + ", unexpected=" + unexpected);
         }
 

@@ -1,0 +1,481 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AIweb Neuron Shell</title>
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: linear-gradient(180deg, #f8fbff 0%, #eef6ff 100%);
+      color: #0f172a;
+      overflow: hidden;
+    }
+
+    .shell {
+      min-height: 100vh;
+      position: relative;
+    }
+
+    .shell__frame {
+      border: 0;
+      display: block;
+      height: 100vh;
+      width: 100%;
+    }
+
+    .shell__status {
+      align-items: center;
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid rgba(191, 219, 254, 0.96);
+      border-radius: 999px;
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+      display: inline-flex;
+      font-size: 12px;
+      font-weight: 700;
+      gap: 10px;
+      left: 14px;
+      padding: 10px 14px;
+      position: absolute;
+      top: 14px;
+      z-index: 2;
+    }
+
+    .shell__dot {
+      background: #2563eb;
+      border-radius: 999px;
+      height: 10px;
+      width: 10px;
+    }
+
+    .shell.is-paused .shell__dot,
+    .shell.is-recovering .shell__dot,
+    .shell.is-leaked .shell__dot {
+      background: #64748b;
+    }
+
+    .shell.is-firing .shell__dot {
+      background: #0f766e;
+    }
+  </style>
+</head>
+<body>
+  <div class="shell is-loading" id="shell">
+    <div class="shell__status">
+      <span class="shell__dot" aria-hidden="true"></span>
+      <span id="statusText">Loading neuron animation</span>
+    </div>
+    <iframe
+      id="simFrame"
+      class="shell__frame"
+      src="./neuron_en_adapted-from-phet.html?externalControlsOnly=1"
+      title="AIweb neuron simulator"
+      loading="eager"
+    ></iframe>
+  </div>
+
+  <script>
+    (function () {
+      const MESSAGE = {
+        READY: 'AIWEB_READY',
+        PLAY: 'AIWEB_PLAY',
+        PAUSE: 'AIWEB_PAUSE',
+        STEP_BACKWARD: 'AIWEB_STEP_BACKWARD',
+        STEP_FORWARD: 'AIWEB_STEP_FORWARD',
+        RESET: 'AIWEB_RESET',
+        STIMULATE: 'AIWEB_STIMULATE',
+        SPEED: 'AIWEB_SPEED',
+        SET_ALL_IONS: 'AIWEB_SET_ALL_IONS',
+        SET_CHARGES: 'AIWEB_SET_CHARGES',
+        SET_CONCENTRATIONS: 'AIWEB_SET_CONCENTRATIONS',
+        SET_POTENTIAL_CHART: 'AIWEB_SET_POTENTIAL_CHART',
+        SPIKE_STARTED: 'AIWEB_SPIKE_STARTED',
+        SPIKE_FINISHED: 'AIWEB_SPIKE_FINISHED',
+        STATE: 'AIWEB_RUNTIME_STATE'
+      };
+
+      const SPEED = {
+        SLOW: 'slow',
+        NORMAL: 'normal',
+        FAST: 'fast'
+      };
+
+      const shell = document.getElementById('shell');
+      const statusText = document.getElementById('statusText');
+      const simFrame = document.getElementById('simFrame');
+      let runtimeReady = false;
+      let runtimePollTimer = null;
+      let lastActionPotential = false;
+      let lastShellState = 'loading';
+
+      const stateCopy = {
+        loading: 'Loading neuron animation',
+        ready: 'Ready to test the neuron',
+        running: 'Neuron animation running',
+        paused: 'Neuron animation paused',
+        firing: 'Neuron spike in progress',
+        recovering: 'Neuron recovering',
+        leaked: 'Signals faded before a spike'
+      };
+
+      function notifyParent(type, payload) {
+        if (window.parent && window.parent !== window) {
+          window.parent.postMessage({ type: type, payload: payload || {} }, '*');
+        }
+      }
+
+      function setShellState(nextState) {
+        lastShellState = nextState;
+        shell.className = 'shell is-' + nextState;
+        statusText.textContent = stateCopy[nextState] || stateCopy.ready;
+      }
+
+      function getFrameWindow() {
+        return simFrame.contentWindow || null;
+      }
+
+      function getSimRoot() {
+        return getFrameWindow() && getFrameWindow().phet && getFrameWindow().phet.joist && getFrameWindow().phet.joist.sim || null;
+      }
+
+      function getSelectedScreen() {
+        const simRoot = getSimRoot();
+        return simRoot && simRoot.selectedScreenProperty ? simRoot.selectedScreenProperty.value : null;
+      }
+
+      function getClockAdapter() {
+        const selectedScreen = getSelectedScreen();
+        return selectedScreen ? selectedScreen.model : null;
+      }
+
+      function getNeuronModel() {
+        const clockAdapter = getClockAdapter();
+        return clockAdapter ? clockAdapter.model : null;
+      }
+
+      function reloadSimulationFrame() {
+        runtimeReady = false;
+        lastActionPotential = false;
+        window.clearInterval(runtimePollTimer);
+        setShellState('loading');
+        simFrame.src = simFrame.src;
+      }
+
+      function pauseClock(clockAdapter) {
+        if (clockAdapter && clockAdapter.playingProperty) {
+          clockAdapter.playingProperty.value = false;
+        }
+      }
+
+      function getTimeSpeedEnum() {
+        const clockAdapter = getClockAdapter();
+        const currentValue = clockAdapter && clockAdapter.timeSpeedProperty ? clockAdapter.timeSpeedProperty.value : null;
+        return currentValue && currentValue.constructor ? currentValue.constructor : null;
+      }
+
+      function mapSpeedValue(speed) {
+        const TimeSpeed = getTimeSpeedEnum();
+        if (!TimeSpeed) {
+          return null;
+        }
+
+        if (speed === SPEED.SLOW) {
+          return TimeSpeed.SLOW;
+        }
+
+        if (speed === SPEED.FAST) {
+          return TimeSpeed.FAST;
+        }
+
+        return TimeSpeed.NORMAL;
+      }
+
+      function getCurrentSpeedLabel() {
+        const clockAdapter = getClockAdapter();
+        const value = clockAdapter && clockAdapter.timeSpeedProperty ? clockAdapter.timeSpeedProperty.value : null;
+        const TimeSpeed = getTimeSpeedEnum();
+
+        if (!value || !TimeSpeed) {
+          return SPEED.NORMAL;
+        }
+
+        if (value === TimeSpeed.SLOW) {
+          return SPEED.SLOW;
+        }
+
+        if (value === TimeSpeed.FAST) {
+          return SPEED.FAST;
+        }
+
+        return SPEED.NORMAL;
+      }
+
+      function collectRuntimeState() {
+        const clockAdapter = getClockAdapter();
+        const neuronModel = getNeuronModel();
+
+        if (!clockAdapter || !neuronModel) {
+          return null;
+        }
+
+        const isRunning = Boolean(clockAdapter.playingProperty && clockAdapter.playingProperty.value);
+        const stimulusLockout = Boolean(neuronModel.stimulusLockoutProperty && neuronModel.stimulusLockoutProperty.value);
+        const actionPotentialInProgress = typeof neuronModel.isActionPotentialInProgress === 'function' ? Boolean(neuronModel.isActionPotentialInProgress()) : false;
+
+        return {
+          simEventState: actionPotentialInProgress
+            ? 'firing'
+            : (isRunning
+              ? 'running'
+              : (lastShellState === 'paused' || lastShellState === 'recovering' || lastShellState === 'leaked')
+                ? lastShellState
+                : 'ready'),
+          speed: getCurrentSpeedLabel(),
+          allIons: Boolean(neuronModel.allIonsSimulatedProperty && neuronModel.allIonsSimulatedProperty.value),
+          charges: Boolean(neuronModel.chargesShownProperty && neuronModel.chargesShownProperty.value),
+          concentrations: Boolean(neuronModel.concentrationReadoutVisibleProperty && neuronModel.concentrationReadoutVisibleProperty.value),
+          potentialChart: Boolean(neuronModel.potentialChartVisibleProperty && neuronModel.potentialChartVisibleProperty.value),
+          canPlay: !isRunning,
+          canPause: isRunning,
+          canStepBackward: !isRunning && typeof clockAdapter.stepClockBackWhilePaused === 'function',
+          canStepForward: !isRunning && typeof clockAdapter.stepClockWhilePaused === 'function',
+          canReset: typeof clockAdapter.reset === 'function',
+          canStimulate: typeof neuronModel.initiateStimulusPulse === 'function' && !stimulusLockout
+        };
+      }
+
+      function pushRuntimeState() {
+        const snapshot = collectRuntimeState();
+        if (snapshot) {
+          notifyParent(MESSAGE.STATE, snapshot);
+        }
+      }
+
+      function syncActionPotentialEvents() {
+        const neuronModel = getNeuronModel();
+        const isActive = neuronModel && typeof neuronModel.isActionPotentialInProgress === 'function'
+          ? Boolean(neuronModel.isActionPotentialInProgress())
+          : false;
+
+        if (isActive && !lastActionPotential) {
+          setShellState('firing');
+          notifyParent(MESSAGE.SPIKE_STARTED);
+        }
+
+        if (!isActive && lastActionPotential) {
+          setShellState('recovering');
+          notifyParent(MESSAGE.SPIKE_FINISHED);
+        }
+
+        lastActionPotential = isActive;
+      }
+
+      function startRuntimePolling() {
+        window.clearInterval(runtimePollTimer);
+        runtimePollTimer = window.setInterval(function () {
+          syncActionPotentialEvents();
+          pushRuntimeState();
+        }, 140);
+      }
+
+      function withRuntime(callback, options) {
+        const clockAdapter = getClockAdapter();
+        const neuronModel = getNeuronModel();
+        const settings = options || {};
+
+        if (!clockAdapter || !neuronModel) {
+          return false;
+        }
+
+        callback(clockAdapter, neuronModel);
+        if (!settings.skipPush) {
+          pushRuntimeState();
+        }
+        return true;
+      }
+
+      function waitForRuntime() {
+        let attempts = 0;
+
+        function check() {
+          const hasRuntime = withRuntime(function (clockAdapter) {
+            pauseClock(clockAdapter);
+          });
+          if (hasRuntime) {
+            runtimeReady = true;
+            setShellState('ready');
+            notifyParent(MESSAGE.READY);
+            pushRuntimeState();
+            startRuntimePolling();
+            return;
+          }
+
+          attempts += 1;
+          if (attempts < 100) {
+            window.setTimeout(check, 100);
+          }
+        }
+
+        check();
+      }
+
+      simFrame.addEventListener('load', function () {
+        runtimeReady = false;
+        lastActionPotential = false;
+        setShellState('loading');
+        waitForRuntime();
+      });
+
+      window.addEventListener('message', function (event) {
+        const type = event.data && event.data.type;
+        const payload = event.data && event.data.payload || {};
+
+        if (!runtimeReady || !type) {
+          return;
+        }
+
+        if (type === MESSAGE.PLAY) {
+          withRuntime(function (clockAdapter) {
+            if (clockAdapter.playingProperty) {
+              clockAdapter.playingProperty.value = true;
+            }
+          });
+          setShellState('running');
+          return;
+        }
+
+        if (type === MESSAGE.PAUSE) {
+          withRuntime(function (clockAdapter) {
+            if (clockAdapter.playingProperty) {
+              clockAdapter.playingProperty.value = false;
+            }
+          });
+          setShellState('paused');
+          return;
+        }
+
+        if (type === MESSAGE.STEP_BACKWARD) {
+          withRuntime(function (clockAdapter) {
+            if (clockAdapter.playingProperty) {
+              clockAdapter.playingProperty.value = false;
+            }
+            if (typeof clockAdapter.stepClockBackWhilePaused === 'function') {
+              clockAdapter.stepClockBackWhilePaused();
+            }
+          });
+          setShellState('paused');
+          return;
+        }
+
+        if (type === MESSAGE.STEP_FORWARD) {
+          withRuntime(function (clockAdapter) {
+            if (clockAdapter.playingProperty) {
+              clockAdapter.playingProperty.value = false;
+            }
+            if (typeof clockAdapter.stepClockWhilePaused === 'function') {
+              clockAdapter.stepClockWhilePaused();
+            }
+          });
+          setShellState('paused');
+          return;
+        }
+
+        if (type === MESSAGE.RESET) {
+          withRuntime(function (clockAdapter, neuronModel) {
+            if (typeof neuronModel.reset === 'function') {
+              neuronModel.reset();
+            }
+            pauseClock(clockAdapter);
+          }, { skipPush: true });
+          lastActionPotential = false;
+          setShellState('ready');
+          window.setTimeout(function () {
+            const refreshedModel = getNeuronModel();
+            const stillFiring = refreshedModel && typeof refreshedModel.isActionPotentialInProgress === 'function'
+              ? Boolean(refreshedModel.isActionPotentialInProgress())
+              : false;
+            const stillLockedOut = refreshedModel && refreshedModel.stimulusLockoutProperty
+              ? Boolean(refreshedModel.stimulusLockoutProperty.value)
+              : false;
+
+            if (stillFiring || stillLockedOut) {
+              reloadSimulationFrame();
+              return;
+            }
+
+            pushRuntimeState();
+          }, 0);
+          return;
+        }
+
+        if (type === MESSAGE.STIMULATE) {
+          withRuntime(function (clockAdapter, neuronModel) {
+            if (clockAdapter.playingProperty) {
+              clockAdapter.playingProperty.value = true;
+            }
+            if (typeof neuronModel.initiateStimulusPulse === 'function' && !(neuronModel.stimulusLockoutProperty && neuronModel.stimulusLockoutProperty.value)) {
+              neuronModel.initiateStimulusPulse();
+            }
+          });
+          setShellState('firing');
+          return;
+        }
+
+        if (type === MESSAGE.SPEED) {
+          withRuntime(function (clockAdapter) {
+            const speedValue = mapSpeedValue(payload.speed || SPEED.NORMAL);
+            if (clockAdapter.timeSpeedProperty && speedValue) {
+              clockAdapter.timeSpeedProperty.value = speedValue;
+            }
+          });
+          return;
+        }
+
+        if (type === MESSAGE.SET_ALL_IONS) {
+          withRuntime(function (_, neuronModel) {
+            if (neuronModel.allIonsSimulatedProperty) {
+              neuronModel.allIonsSimulatedProperty.value = Boolean(payload.value);
+            }
+          });
+          return;
+        }
+
+        if (type === MESSAGE.SET_CHARGES) {
+          withRuntime(function (_, neuronModel) {
+            if (neuronModel.chargesShownProperty) {
+              neuronModel.chargesShownProperty.value = Boolean(payload.value);
+            }
+          });
+          return;
+        }
+
+        if (type === MESSAGE.SET_CONCENTRATIONS) {
+          withRuntime(function (_, neuronModel) {
+            if (neuronModel.concentrationReadoutVisibleProperty) {
+              neuronModel.concentrationReadoutVisibleProperty.value = Boolean(payload.value);
+            }
+          });
+          return;
+        }
+
+        if (type === MESSAGE.SET_POTENTIAL_CHART) {
+          withRuntime(function (_, neuronModel) {
+            if (neuronModel.potentialChartVisibleProperty) {
+              neuronModel.potentialChartVisibleProperty.value = Boolean(payload.value);
+            }
+          });
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

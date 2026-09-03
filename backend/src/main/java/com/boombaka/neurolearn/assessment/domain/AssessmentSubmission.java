@@ -47,6 +47,39 @@ public class AssessmentSubmission {
     @Column(name = "ai_understanding", nullable = false)
     private Integer aiUnderstanding;
 
+    @Column(name = "neuron_parts_rating")
+    private Integer neuronPartsRating;
+
+    @Column(name = "neuron_signals_rating")
+    private Integer neuronSignalsRating;
+
+    @Column(name = "biology_ai_relationship_rating")
+    private Integer biologyAiRelationshipRating;
+
+    @Column(name = "artificial_networks_rating")
+    private Integer artificialNetworksRating;
+
+    @Column(name = "learning_from_feedback_rating")
+    private Integer learningFromFeedbackRating;
+
+    @Column(name = "continued_interest_rating")
+    private Integer continuedInterestRating;
+
+    @Column(name = "learning_goal", length = 2000)
+    private String learningGoal;
+
+    @Column(name = "most_helpful", length = 2000)
+    private String mostHelpful;
+
+    @Column(name = "improvement_ideas", length = 2000)
+    private String improvementIdeas;
+
+    @Column(name = "additional_comments", length = 2000)
+    private String additionalComments;
+
+    @Column(name = "skipped", nullable = false)
+    private boolean skipped;
+
     protected AssessmentSubmission() {
     }
 
@@ -64,6 +97,38 @@ public class AssessmentSubmission {
         this.aiFamiliarity = aiFamiliarity;
         this.neuronUnderstanding = neuronUnderstanding;
         this.aiUnderstanding = aiUnderstanding;
+    }
+
+    public AssessmentSubmission(
+            CourseParticipant participant,
+            AssessmentType type,
+            Instant submittedAt,
+            Integer aiFamiliarity,
+            Integer neuronUnderstanding,
+            Integer aiUnderstanding,
+            Integer neuronPartsRating,
+            Integer neuronSignalsRating,
+            Integer biologyAiRelationshipRating,
+            Integer artificialNetworksRating,
+            Integer learningFromFeedbackRating,
+            Integer continuedInterestRating,
+            String learningGoal,
+            String mostHelpful,
+            String improvementIdeas,
+            String additionalComments,
+            boolean skipped) {
+        this(participant, type, submittedAt, aiFamiliarity, neuronUnderstanding, aiUnderstanding);
+        this.neuronPartsRating = neuronPartsRating;
+        this.neuronSignalsRating = neuronSignalsRating;
+        this.biologyAiRelationshipRating = biologyAiRelationshipRating;
+        this.artificialNetworksRating = artificialNetworksRating;
+        this.learningFromFeedbackRating = learningFromFeedbackRating;
+        this.continuedInterestRating = continuedInterestRating;
+        this.learningGoal = learningGoal;
+        this.mostHelpful = mostHelpful;
+        this.improvementIdeas = improvementIdeas;
+        this.additionalComments = additionalComments;
+        this.skipped = skipped;
     }
 
     public UUID getId() {
@@ -92,5 +157,49 @@ public class AssessmentSubmission {
 
     public Integer getAiUnderstanding() {
         return aiUnderstanding;
+    }
+
+    public Integer getNeuronPartsRating() {
+        return neuronPartsRating;
+    }
+
+    public Integer getNeuronSignalsRating() {
+        return neuronSignalsRating;
+    }
+
+    public Integer getBiologyAiRelationshipRating() {
+        return biologyAiRelationshipRating;
+    }
+
+    public Integer getArtificialNetworksRating() {
+        return artificialNetworksRating;
+    }
+
+    public Integer getLearningFromFeedbackRating() {
+        return learningFromFeedbackRating;
+    }
+
+    public Integer getContinuedInterestRating() {
+        return continuedInterestRating;
+    }
+
+    public String getLearningGoal() {
+        return learningGoal;
+    }
+
+    public String getMostHelpful() {
+        return mostHelpful;
+    }
+
+    public String getImprovementIdeas() {
+        return improvementIdeas;
+    }
+
+    public String getAdditionalComments() {
+        return additionalComments;
+    }
+
+    public boolean isSkipped() {
+        return skipped;
     }
 }

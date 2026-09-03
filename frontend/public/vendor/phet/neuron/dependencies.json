@@ -1,0 +1,91 @@
+{
+  "comment": "# neuron 1.2.0-dev.0 Mon May 11 2026 15:02:55 GMT-0400 (Eastern Daylight Time)",
+  "assert": {
+    "sha": "51cb1f03d29ea7ba229d27533e544e789d5a2a31",
+    "branch": "main"
+  },
+  "axon": {
+    "sha": "ce0d9558d87fe00ff27d30066187346bde19b466",
+    "branch": "main"
+  },
+  "brand": {
+    "sha": "3748f9717bb6c13642cccd8c76894472f81f721d",
+    "branch": "main"
+  },
+  "chipper": {
+    "sha": "141f120556b18330e2c1c2af54594b80a752dce2",
+    "branch": "main"
+  },
+  "dot": {
+    "sha": "3a86ddf31b5cd7f442ddfe2e6d2b5d61dde709e1",
+    "branch": "main"
+  },
+  "griddle": {
+    "sha": "a2b35ff18d44bcaade1f6be46b2a5fecbc7c573e",
+    "branch": "main"
+  },
+  "joist": {
+    "sha": "10d8ea050753ab782b79b205daf4cfc71a6eb56c",
+    "branch": "main"
+  },
+  "kite": {
+    "sha": "b7686ed3ecbae95ae93bdbe16b8eec7141e2a013",
+    "branch": "main"
+  },
+  "neuron": {
+    "sha": "4bb976d69b5da9ec10157f8344f3cbab979d9aff",
+    "branch": "main"
+  },
+  "perennial-alias": {
+    "sha": "71d14a909405dac18eb71854743f0901d318bd34",
+    "branch": "main"
+  },
+  "phet-core": {
+    "sha": "32a5205cb8820e4fb8cee3507d65475cab4345f4",
+    "branch": "main"
+  },
+  "phetcommon": {
+    "sha": "92defd570c6cbfe33eb8fb29946d7a12086e8102",
+    "branch": "main"
+  },
+  "phetmarks": {
+    "sha": "d81ab55544421e540366ae32579e3d8bba8ee261",
+    "branch": "main"
+  },
+  "query-string-machine": {
+    "sha": "26dc5594df5bcdcb115ea78143e5d969869f1398",
+    "branch": "main"
+  },
+  "scenery": {
+    "sha": "e447bd114a7e826e68c0021fd198c25ea0f981f7",
+    "branch": "main"
+  },
+  "scenery-phet": {
+    "sha": "df5623c06d41c2a9b9eb707d5fec3ae2ba946672",
+    "branch": "main"
+  },
+  "sherpa": {
+    "sha": "386a53feaa78fda3c38f1df4734898dfa711291d",
+    "branch": "main"
+  },
+  "sun": {
+    "sha": "3dc0943f13099bca8734bb0f0f4f79c228b7c5c2",
+    "branch": "main"
+  },
+  "tambo": {
+    "sha": "dfc44bd1de84a52c0c08fb5c768f59cc176e6b63",
+    "branch": "main"
+  },
+  "tandem": {
+    "sha": "a0c626694c36573b4be94004ea1827f993e75319",
+    "branch": "main"
+  },
+  "twixt": {
+    "sha": "8a83e0017b1388c7fd36419ed78200693d3bc944",
+    "branch": "main"
+  },
+  "utterance-queue": {
+    "sha": "a1043edf202165df9cf93da6a24ad56b9ca578d6",
+    "branch": "main"
+  }
+}

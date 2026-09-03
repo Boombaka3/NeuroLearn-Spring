@@ -29,8 +29,8 @@ class QuizWorkflowIntegrationTest {
         submitQuiz("QUIZ-001", perfectAnswers())
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.participantCode").value("QUIZ-001"))
-                .andExpect(jsonPath("$.score").value(5))
-                .andExpect(jsonPath("$.total").value(5))
+                .andExpect(jsonPath("$.score").value(10))
+                .andExpect(jsonPath("$.total").value(10))
                 .andExpect(jsonPath("$.percentage").value(100.0))
                 .andExpect(jsonPath("$.answers").doesNotExist());
     }
@@ -39,7 +39,7 @@ class QuizWorkflowIntegrationTest {
     void rejectsMissingRequiredAnswer() throws Exception {
         createParticipant("QUIZ-002");
 
-        submitQuiz("QUIZ-002", "\"q1\":\"B\",\"q2\":\"A\",\"q3\":\"C\",\"q4\":\"D\"")
+        submitQuiz("QUIZ-002", perfectAnswers().replace(",\"q10\":\"B\"", ""))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.code").value("VALIDATION_FAILED"));
     }
@@ -48,7 +48,7 @@ class QuizWorkflowIntegrationTest {
     void rejectsInvalidQuestionId() throws Exception {
         createParticipant("QUIZ-003");
 
-        submitQuiz("QUIZ-003", "\"q1\":\"B\",\"q2\":\"A\",\"q3\":\"C\",\"q4\":\"D\",\"q6\":\"B\"")
+        submitQuiz("QUIZ-003", perfectAnswers().replace("\"q10\":\"B\"", "\"q11\":\"B\""))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.code").value("VALIDATION_FAILED"));
     }
@@ -57,7 +57,7 @@ class QuizWorkflowIntegrationTest {
     void rejectsInvalidAnswerOption() throws Exception {
         createParticipant("QUIZ-004");
 
-        submitQuiz("QUIZ-004", "\"q1\":\"B\",\"q2\":\"A\",\"q3\":\"C\",\"q4\":\"D\",\"q5\":\"X\"")
+        submitQuiz("QUIZ-004", perfectAnswers().replace("\"q10\":\"B\"", "\"q10\":\"X\""))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.code").value("VALIDATION_FAILED"));
     }
@@ -86,7 +86,7 @@ class QuizWorkflowIntegrationTest {
                 {
                   "participantCode": "QUIZ-006",
                   "answers": {%s},
-                  "score": 5
+                  "score": 10
                 }
                 """.formatted(perfectAnswers());
 
@@ -129,6 +129,7 @@ class QuizWorkflowIntegrationTest {
     }
 
     private String perfectAnswers() {
-        return "\"q1\":\"B\",\"q2\":\"A\",\"q3\":\"C\",\"q4\":\"D\",\"q5\":\"B\"";
+        return "\"q1\":\"C\",\"q2\":\"A\",\"q3\":\"D\",\"q4\":\"A\",\"q5\":\"C\","
+                + "\"q6\":\"B\",\"q7\":\"D\",\"q8\":\"C\",\"q9\":\"D\",\"q10\":\"B\"";
     }
 }

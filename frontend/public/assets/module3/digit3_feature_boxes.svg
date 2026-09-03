@@ -1,0 +1,83 @@
+<svg width="100%" viewBox="0 0 680 340" role="img" xmlns="http://www.w3.org/2000/svg">
+<title>Digit 3 with four labeled feature boxes</title>
+<desc>The digit 3 shown with dashed outline boxes highlighting four visual parts: upper curve, closed loop, open gap, and lower curve.</desc>
+<defs>
+  <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+    <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+</defs>
+
+<!-- Digit 3: spans y=44 to y=278, centered around x=310 -->
+<!-- Shadow -->
+<path d="M255,105 C255,68 295,48 325,56 C358,64 378,90 372,118 C367,140 348,153 328,157 C348,157 378,170 378,204 C378,242 352,266 318,268 C284,270 252,248 248,222"
+  fill="none" stroke="#e5e7eb" stroke-width="28" stroke-linecap="round" stroke-linejoin="round"/>
+<!-- Main stroke -->
+<path d="M255,105 C255,68 295,48 325,56 C358,64 378,90 372,118 C367,140 348,153 328,157 C348,157 378,170 378,204 C378,242 352,266 318,268 C284,270 252,248 248,222"
+  fill="none" stroke="#7F77DD" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+
+<!--
+  DIGIT ZONE SPLIT (no overlap):
+  Upper curve zone:  y=44  → y=128   (top arc)
+  Closed loop zone:  y=132 → y=164   (middle narrow band where path reverses)
+  Open gap zone:     y=132 → y=176   (right-side gap — small box, right edge only x=370+)
+  Lower curve zone:  y=180 → y=280   (bottom arc)
+
+  Open gap is a SMALL box on the RIGHT side of the digit only,
+  sitting between closed loop and lower curve horizontally displaced right.
+  It does NOT overlap vertically with closed loop because it starts at same y
+  but is offset horizontally to the far right (x=374) where no other box sits.
+-->
+
+<!-- A: Upper curve — top half, left+center, x=246..390, y=44..128 -->
+<rect x="246" y="44"  width="144" height="84" rx="6"
+  fill="rgba(255,255,255,0.05)" stroke="#1D9E75" stroke-width="1.5" stroke-dasharray="5,3" opacity="0.8"/>
+
+<!-- B: Closed loop — narrow center band, x=290..390, y=134..168 -->
+<rect x="290" y="134" width="100" height="38" rx="6"
+  fill="rgba(255,255,255,0.05)" stroke="#1D9E75" stroke-width="1.5" stroke-dasharray="5,3" opacity="0.8"/>
+
+<!-- C: Open gap — small box far right only, x=374..416, y=150..192 -->
+<!-- Centered vertically between closed loop bottom (168) and lower curve top (180) — the open right space -->
+<rect x="374" y="148" width="42" height="46" rx="6"
+  fill="rgba(255,255,255,0.05)" stroke="#1D9E75" stroke-width="1.5" stroke-dasharray="5,3" opacity="0.8"/>
+
+<!-- D: Lower curve — bottom half, x=240..392, y=182..280 -->
+<rect x="240" y="182" width="152" height="98" rx="6"
+  fill="rgba(255,255,255,0.05)" stroke="#1D9E75" stroke-width="1.5" stroke-dasharray="5,3" opacity="0.8"/>
+
+<!-- LEADER LINES -->
+<!-- A upper curve → left card at y≈78 -->
+<line x1="246" y1="78"  x2="184" y2="78"  stroke="#1D9E75" stroke-width="0.9" stroke-dasharray="3,2" marker-end="url(#arr)" opacity="0.8"/>
+<!-- B closed loop → right card at y≈153 -->
+<line x1="390" y1="153" x2="456" y2="153" stroke="#1D9E75" stroke-width="0.9" stroke-dasharray="3,2" marker-end="url(#arr)" opacity="0.8"/>
+<!-- C open gap → right card at y≈228 (below closed loop card) -->
+<line x1="416" y1="171" x2="456" y2="228" stroke="#1D9E75" stroke-width="0.9" stroke-dasharray="3,2" marker-end="url(#arr)" opacity="0.8"/>
+<!-- D lower curve → left card at y≈248 -->
+<line x1="246" y1="248" x2="184" y2="248" stroke="#1D9E75" stroke-width="0.9" stroke-dasharray="3,2" marker-end="url(#arr)" opacity="0.8"/>
+
+<!-- LABEL CARDS — white, green border, black text -->
+<!-- LEFT col x=14, card height=62, gap=14 between cards -->
+<!-- A: Upper curve — vertically centered on leader y=78 → top=47, bottom=109 -->
+<rect x="14" y="47"  width="166" height="62" rx="6" fill="white" stroke="#1D9E75" stroke-width="1.5"/>
+<text x="97" y="71"  text-anchor="middle" dominant-baseline="central" font-size="15" font-weight="600" fill="#111">Upper curve</text>
+<text x="97" y="91"  text-anchor="middle" dominant-baseline="central" font-size="12" fill="#555">top arc of the digit</text>
+
+<!-- D: Lower curve — vertically centered on leader y=248 → top=217, bottom=279 -->
+<!-- Gap between A bottom(109) and D top(217) = 108px — no overlap -->
+<rect x="14" y="217" width="166" height="62" rx="6" fill="white" stroke="#1D9E75" stroke-width="1.5"/>
+<text x="97" y="241" text-anchor="middle" dominant-baseline="central" font-size="15" font-weight="600" fill="#111">Lower curve</text>
+<text x="97" y="261" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#555">bottom arc of the digit</text>
+
+<!-- RIGHT col x=460 -->
+<!-- B: Closed loop — centered on leader y=153 → top=122, bottom=184 -->
+<rect x="460" y="122" width="200" height="62" rx="6" fill="white" stroke="#1D9E75" stroke-width="1.5"/>
+<text x="560" y="146" text-anchor="middle" dominant-baseline="central" font-size="15" font-weight="600" fill="#111">Closed loop</text>
+<text x="560" y="166" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#555">where strokes meet</text>
+
+<!-- C: Open gap — centered on leader y=228 → top=197, bottom=259 -->
+<!-- Gap between B bottom(184) and C top(197) = 13px — no overlap -->
+<rect x="460" y="197" width="200" height="62" rx="6" fill="white" stroke="#1D9E75" stroke-width="1.5"/>
+<text x="560" y="221" text-anchor="middle" dominant-baseline="central" font-size="15" font-weight="600" fill="#111">Open gap</text>
+<text x="560" y="241" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#555">open space on the right</text>
+
+</svg>

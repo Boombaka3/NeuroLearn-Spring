@@ -40,21 +40,23 @@ class QuizRepositoryTest {
         submissionRepository.saveAndFlush(new QuizSubmission(
                 participant,
                 NOW,
-                3,
-                5,
-                Map.of("q1", "B", "q2", "A", "q3", "A", "q4", "A", "q5", "A")));
+                7,
+                10,
+                Map.of(
+                        "q1", "C", "q2", "A", "q3", "D", "q4", "A", "q5", "C",
+                        "q6", "B", "q7", "D", "q8", "A", "q9", "A", "q10", "A")));
         entityManager.clear();
 
         assertThat(submissionRepository.findByParticipantId(participant.getId()))
                 .get()
                 .satisfies(saved -> {
-                    assertThat(saved.getScore()).isEqualTo(3);
-                    assertThat(saved.getTotalQuestions()).isEqualTo(5);
-                    assertThat(saved.getAnswers()).hasSize(5);
+                    assertThat(saved.getScore()).isEqualTo(7);
+                    assertThat(saved.getTotalQuestions()).isEqualTo(10);
+                    assertThat(saved.getAnswers()).hasSize(10);
                     assertThat(saved.getAnswers())
                             .anySatisfy(answer -> {
                                 assertThat(answer.getQuestionId()).isEqualTo("q1");
-                                assertThat(answer.getSelectedOption()).isEqualTo("B");
+                                assertThat(answer.getSelectedOption()).isEqualTo("C");
                             });
                 });
     }

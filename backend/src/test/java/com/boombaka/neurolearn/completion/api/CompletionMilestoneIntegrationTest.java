@@ -46,7 +46,7 @@ class CompletionMilestoneIntegrationTest {
         mockMvc.perform(get("/api/completion/flow-001"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.participantCode").value("FLOW-001"))
-                .andExpect(jsonPath("$.quizScore").value(5))
+                .andExpect(jsonPath("$.quizScore").value(10))
                 .andExpect(jsonPath("$.complete").value(true))
                 .andExpect(jsonPath("$.completedAt").exists());
 
@@ -73,7 +73,7 @@ class CompletionMilestoneIntegrationTest {
                 .andExpect(content().string(org.hamcrest.Matchers.containsString(
                         "participant_code,pre_submitted_at,quiz_score,post_submitted_at,complete")))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("FLOW-001")))
-                .andExpect(content().string(org.hamcrest.Matchers.containsString(",5,")));
+                .andExpect(content().string(org.hamcrest.Matchers.containsString(",10,")));
     }
 
     @Test
@@ -91,6 +91,34 @@ class CompletionMilestoneIntegrationTest {
                 .andExpect(status().isConflict())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.code").value("COURSE_NOT_COMPLETED"));
+    }
+
+    @Test
+    void skippedPreAssessmentDoesNotSatisfyCompletionRule() throws Exception {
+        String skippedPre = """
+                {
+                  "participantCode": "FLOW-SKIP",
+                  "answers": {
+                    "aiFamiliarity": 3,
+                    "neuronUnderstanding": 3,
+                    "aiUnderstanding": 3
+                  },
+                  "skipped": true
+                }
+                """;
+        mockMvc.perform(post("/api/assessments/pre")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(skippedPre))
+                .andExpect(status().isCreated());
+        submitQuiz("FLOW-SKIP");
+        submitAssessment("/api/assessments/post", "FLOW-SKIP");
+
+        mockMvc.perform(get("/api/completion/FLOW-SKIP"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.preAssessmentSubmitted").value(false))
+                .andExpect(jsonPath("$.quizSubmitted").value(true))
+                .andExpect(jsonPath("$.postAssessmentSubmitted").value(true))
+                .andExpect(jsonPath("$.complete").value(false));
     }
 
     @Test
@@ -144,11 +172,16 @@ class CompletionMilestoneIntegrationTest {
                 {
                   "participantCode": "%s",
                   "answers": {
-                    "q1": "B",
+                    "q1": "C",
                     "q2": "A",
-                    "q3": "C",
-                    "q4": "D",
-                    "q5": "B"
+                    "q3": "D",
+                    "q4": "A",
+                    "q5": "C",
+                    "q6": "B",
+                    "q7": "D",
+                    "q8": "C",
+                    "q9": "D",
+                    "q10": "B"
                   }
                 }
                 """.formatted(participantCode);
