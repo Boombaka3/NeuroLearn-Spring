@@ -29,6 +29,8 @@ logs/
 *.pdf
 uploads/
 data/
+!frontend/src/modules/CourseEvaluation/data/
+!frontend/src/modules/CourseEvaluation/data/courseEvaluationData.js
 tmp/
 *.dump
 *.hprof
